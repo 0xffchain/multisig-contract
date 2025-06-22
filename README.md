@@ -52,5 +52,13 @@ Each logical block will be evaluated on both the attack sufface it introduces in
 ### External functions
 ![The system design from ext functions view](media/system.png)
 
+### Logical blocks
+1. Skeleton (State variables, functions, events & modifiers)
+2. Access Control
+3. Call 
+4. Signature Verification
+5. Funds Transfer
+6. Update signer
+
 
 

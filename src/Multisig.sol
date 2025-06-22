@@ -16,6 +16,11 @@ contract Multisig {
 
     ownerHistory[] public history; // history of the multisig. computation should be done offchain 
 
+    modifier onlyContract() {
+        require(msg.sender == address(this), "Not authorized");
+        _;
+    }
+
     event Executed(address indexed to, uint256 value, bytes data, bool success, uint256 nonce);
     event Updated(address[] newOwners, uint256 newThreshold, uint256 nonce);
     event Received(address indexed sender, uint256 amount);
