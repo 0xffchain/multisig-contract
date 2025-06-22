@@ -12,7 +12,7 @@ etc.).
  4. How you think about its security.
   
 
-## Requirements. 
+## Requirements 
 1. The multisig contract allows k-of-n signers to execute an arbitrary method on an arbitrary contract
 2. Anyone can execute the multisig as long as they provide the required signatures
 3. The blockchain’s native transaction/signature verification mechanism should NOT be used for it,
@@ -48,17 +48,55 @@ The [Threat Model Manifesto](https://www.threatmodelingmanifesto.org/) will be u
 Each logical block will be evaluated on both the attack sufface it introduces in isolation and in the system. 
 
 
-## System design. 
+## System design 
 ### External functions
 ![The system design from ext functions view](media/system.png)
 
 ### Logical blocks
-1. Skeleton (State variables, functions, events & modifiers)
-2. Access Control
-3. Call 
-4. Signature Verification
-5. Funds Transfer
-6. Update signer
+- [x] Skeleton (State variables, functions, events & modifiers)
+- [ ] Access Control
+- [ ] Call 
+- [ ] Signature Verification
+- [ ] Funds Transfer
+- [ ] Update signer
+
+### Skeleton 
+This is the basic. It will be included in all subsequent tests. 
+
+```solidity
+contract Multisig {
+
+    struct ownerHistory {
+        address[] owners;
+        uint256 nonce; // nonce when owners removed. 
+        uint256 threshold;
+    }
+
+    address[] public owners;
+    mapping(address => bool) public isOwner;
+    uint256 public threshold; 
+    uint256 public nonce; 
+
+    ownerHistory[] public history; // history of the multisig. computation should be done offchain 
+
+    modifier onlyContract() {
+        require(msg.sender == address(this), "Not authorized");
+        _;
+    }
+
+    event Executed(address indexed to, uint256 value, bytes data, bool success, uint256 nonce);
+    event Updated(address[] newOwners, uint256 newThreshold, uint256 nonce);
+    event Received(address indexed sender, uint256 amount);
+
+    constructor(address[] memory _owners, uint256 _threshold) {}
+
+    function execute(address to, uint256 value, bytes calldata data, bytes[] calldata signatures) external returns (bool) {}
+
+    function update( address[] memory _owners, uint256 _threshold) external returns (bool){}
+
+    receive() external payable {}
+}
+```
 
 
 
