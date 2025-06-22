@@ -21,3 +21,36 @@ authorization/multisig feature.
 4. Feel free to pick any signature scheme to use for the multisig
 5. The multisig should also allow the current signers to sign off on an update to a new signer set
 6. Define a list of tests that you would add for coverage (they don’t need to be implemented).
+
+
+# Solution 
+### Design Philosophy 
+**KISS: Keep It Simple, Stupid** </br>
+  *- Kelly Johnson* 
+
+The two primary principles that will dictate the design for this would be functionality and security, Once the design meets at the intersection of both and works as intended, the solution is complete, everything beyond that becomes excess weight. 
+
+The objective is to minimize code and by extension, minimize attack surfaces. 
+
+![KISS Design Philosophy: Intersection of Functionality and Security](media/design.png)
+
+## Approach
+A systematic approach will be used to build the contract, it will be a bottom up approach, breaking down each logical building block and building while reasoning the security of the single block and then at the end, looking at the security of the system *as is*, before moving on to the next reponsibility. 
+
+## Threat model 
+
+The [Threat Model Manifesto](https://www.threatmodelingmanifesto.org/) will be used, to evaluate each logical block, with focus on the first three questions. And the fourth will be evaluated at the end of the system build.
+1. What are we working on?
+2. What can go wrong?
+3. What are we going to do about it?
+4. Did we do a good enough job?
+
+Each logical block will be evaluated on both the attack sufface it introduces in isolation and in the system. 
+
+
+## System design. 
+### External functions
+![The system design from ext functions view](media/system.png)
+
+
+
