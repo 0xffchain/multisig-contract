@@ -32,7 +32,7 @@ The two primary principles that will dictate the design for this would be functi
 
 The objective is to minimize code and by extension, minimize attack surfaces. 
 
-![KISS Design Philosophy: Intersection of Functionality and Security](media/design.png)
+![KISS Design Philosophy: Intersection of Functionality and Security](media/solution.png)
 
 ## Approach
 A systematic approach will be used to build the contract, it will be a bottom up approach, breaking down each logical building block and building while reasoning the security of the single block and then at the end, looking at the security of the system *as is*, before moving on to the next reponsibility. 
