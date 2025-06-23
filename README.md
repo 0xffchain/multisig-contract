@@ -52,7 +52,7 @@ Each logical block will be evaluated on both the attack sufface it introduces in
 ### External functions
 ![The system design from ext functions view](media/system.png)
 
-### Logical blocks
+## Logical blocks
 - [x] Skeleton (State variables, functions, events & modifiers)
 - [ ] Access Control
 - [ ] Call 
@@ -60,9 +60,9 @@ Each logical block will be evaluated on both the attack sufface it introduces in
 - [ ] Funds Transfer
 - [ ] Update signer
 
-### Skeleton 
-This is the basic. It will be included in all subsequent tests. 
-[Commit: 0a86fc3](https://github.com/0xffchain/multisig-contract/commit/0a86fc3c90452af305da7d796ef243de64be364a)
+## Skeleton 
+[Commit: 0a86fc3](https://github.com/0xffchain/multisig-contract/commit/0a86fc3c90452af305da7d796ef243de64be364a) This is the basic. It will be included in all subsequent tests. 
+
 
 #### Update 1
 [Commit: de7fbee](https://github.com/0xffchain/multisig-contract/commit/de7fbee5b1aa8d45207a4d717ebf9e35059bae43)
@@ -78,12 +78,44 @@ Pros
 
 #### Update 1.1
 
-[Commit: ]() 
-
-Updated events to index nonce, for proper offchain tracking.
+[Commit: bc3bdd7](https://github.com/0xffchain/multisig-contract/commit/bc3bdd7031d566476ade1743152c6e5f25ed112f) Updated events to index nonce, for proper offchain tracking.
 
 Pros. 
 1. Makes tracking of state easier offchain. 
 
 
+## Access Control
 
+Todo
+1. Build the constructor function to update signers and threshold.
+2. Add modifier to update
+3. Write test cases for functions and state variable. 
+   
+### What are we working on?
+The access control for the multisig contract, which should dictate who has access to what  entry points in the contract. 
+
+ **What are the entry points**
+ - Execute
+ - Update
+ - Recieve
+  
+**Who has access to each**
+ - Execute : Callable by anyone, but will only succeed if the provided signatures are from the current signers and meet the threshold. 
+ - Update : Callable by anyone, but will only succeed if called with the current set signatures and within threshold.
+ - Recieve : Anyone can send ether to the contract.
+
+**Note**
+Authorization is enforced by signature verification, not by restricting who can call the function.
+
+### What can go wrong? 
+
+1. Anyone can call `execute` and `update` (as they are external and have no onlyOwner or similar modifier).
+This is intentional in a multisig: the contract relies on signature checks, not msg.sender, for authorization.
+
+2. If update does not use the same mechanism and process as `execute` being that it has same requiremnts, it could open up new attack vectors.  
+
+### What are we going to do about it?
+
+1. Restrict `update` so it can only be called by the contract itself. To update the owner set or threshold, users must submit a multisig-approved transaction via `execute` that calls `update` with the new parameters. This ensures that all critical changes require the same level of multisig approval, maintaining consistency, security and reducing attack surfaces. 
+
+### Test cases

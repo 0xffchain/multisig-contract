@@ -18,7 +18,9 @@ contract Multisig {
     event Updated(address[] newOwners, uint256 newThreshold, uint256 indexed nonce);
     event Received(address indexed sender, uint256 amount);
 
-    constructor(address[] memory _owners, uint256 _threshold) {}
+    constructor(address[] memory _owners, uint256 _threshold) {
+        
+    }
 
     function execute(address to, uint256 value, bytes calldata data, bytes[] calldata signatures) external returns (bool) {}
 
