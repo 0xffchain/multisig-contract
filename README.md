@@ -99,7 +99,8 @@ contract Multisig {
 ```
 
 #### Update 1
-```
+Commit: ![de7fbee](https://github.com/0xffchain/multisig-contract/commit/de7fbee5b1aa8d45207a4d717ebf9e35059bae43)
+```solidity
 --- struct ownerHistory {
         address[] owners;
         uint256 nonce; // nonce when owners removed. 
