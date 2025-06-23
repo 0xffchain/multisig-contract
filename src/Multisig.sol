@@ -3,18 +3,11 @@ pragma solidity ^0.8.13;
 
 contract Multisig {
 
-    struct ownerHistory {
-        address[] owners;
-        uint256 nonce; // nonce when owners removed. 
-        uint256 threshold;
-    }
-
     address[] public owners;
     mapping(address => bool) public isOwner;
     uint256 public threshold; 
     uint256 public nonce; 
-
-    ownerHistory[] public history; // history of the multisig. computation should be done offchain 
+// history of the multisig. computation should be done offchain 
 
     modifier onlyContract() {
         require(msg.sender == address(this), "Not authorized");

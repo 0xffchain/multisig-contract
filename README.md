@@ -98,5 +98,25 @@ contract Multisig {
 }
 ```
 
+#### Update 1
+```
+--- struct ownerHistory {
+        address[] owners;
+        uint256 nonce; // nonce when owners removed. 
+        uint256 threshold;
+    }
+--- ownerHistory[] public history;
+```
+
+Updated skeleton to remove signers history. The signers history will be emited in the `Updated` event,
+also all update to signers at `#update` and `#constructor` fnc , will emit the `Updated` event. 
+
+Pros
+1. Keeps the state tree clean 
+2. Saves on gas
+3. Moves all non contract needed data out of the contract state. 
+4. Moves historical computation offchain
+5. Reduces attack suface by reducing code size
+
 
 
