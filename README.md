@@ -62,53 +62,10 @@ Each logical block will be evaluated on both the attack sufface it introduces in
 
 ### Skeleton 
 This is the basic. It will be included in all subsequent tests. 
-
-```solidity
-contract Multisig {
-
-    struct ownerHistory {
-        address[] owners;
-        uint256 nonce; // nonce when owners removed. 
-        uint256 threshold;
-    }
-
-    address[] public owners;
-    mapping(address => bool) public isOwner;
-    uint256 public threshold; 
-    uint256 public nonce; 
-
-    ownerHistory[] public history; // history of the multisig. computation should be done offchain 
-
-    modifier onlyContract() {
-        require(msg.sender == address(this), "Not authorized");
-        _;
-    }
-
-    event Executed(address indexed to, uint256 value, bytes data, bool success, uint256 nonce);
-    event Updated(address[] newOwners, uint256 newThreshold, uint256 nonce);
-    event Received(address indexed sender, uint256 amount);
-
-    constructor(address[] memory _owners, uint256 _threshold) {}
-
-    function execute(address to, uint256 value, bytes calldata data, bytes[] calldata signatures) external returns (bool) {}
-
-    function update( address[] memory _owners, uint256 _threshold) external returns (bool){}
-
-    receive() external payable {}
-}
-```
+[Commit: 0a86fc3](https://github.com/0xffchain/multisig-contract/commit/0a86fc3c90452af305da7d796ef243de64be364a)
 
 #### Update 1
-Commit: ![de7fbee](https://github.com/0xffchain/multisig-contract/commit/de7fbee5b1aa8d45207a4d717ebf9e35059bae43)
-```solidity
---- struct ownerHistory {
-        address[] owners;
-        uint256 nonce; // nonce when owners removed. 
-        uint256 threshold;
-    }
---- ownerHistory[] public history;
-```
-
+[Commit: de7fbee](https://github.com/0xffchain/multisig-contract/commit/de7fbee5b1aa8d45207a4d717ebf9e35059bae43)
 Updated skeleton to remove signers history. The signers history will be emited in the `Updated` event,
 also all update to signers at `#update` and `#constructor` fnc , will emit the `Updated` event. 
 
@@ -118,6 +75,15 @@ Pros
 3. Moves all non contract needed data out of the contract state. 
 4. Moves historical computation offchain
 5. Reduces attack suface by reducing code size
+
+#### Update 1.1
+
+Commit: 
+
+Updated events to index nonce, for proper offchain tracking.
+
+Pros. 
+1. Makes tracking of state easier offchain. 
 
 
 
