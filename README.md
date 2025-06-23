@@ -78,7 +78,7 @@ Pros
 
 #### Update 1.1
 
-Commit: 
+[Commit: ]() 
 
 Updated events to index nonce, for proper offchain tracking.
 

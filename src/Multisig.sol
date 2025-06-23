@@ -14,8 +14,8 @@ contract Multisig {
         _;
     }
 
-    event Executed(address indexed to, uint256 value, bytes data, bool success, uint256 nonce);
-    event Updated(address[] newOwners, uint256 newThreshold, uint256 nonce);
+    event Executed(address indexed to, uint256 value, bytes data, bool success, uint256 indexed nonce);
+    event Updated(address[] newOwners, uint256 newThreshold, uint256 indexed nonce);
     event Received(address indexed sender, uint256 amount);
 
     constructor(address[] memory _owners, uint256 _threshold) {}
