@@ -54,7 +54,7 @@ Each logical block will be evaluated on both the attack sufface it introduces in
 
 ## Logical blocks
 - [x] Skeleton (State variables, functions, events & modifiers)
-- [ ] Access Control
+- [x] Access Control
 - [ ] Call 
 - [ ] Signature Verification
 - [ ] Funds Transfer
@@ -118,4 +118,25 @@ This is intentional in a multisig: the contract relies on signature checks, not 
 
 1. Restrict `update` so it can only be called by the contract itself. To update the owner set or threshold, users must submit a multisig-approved transaction via `execute` that calls `update` with the new parameters. This ensures that all critical changes require the same level of multisig approval, maintaining consistency, security and reducing attack surfaces. 
 
-### Test cases
+
+## Test cases
+1. Deployment / Constructor
+   - Deploy with valid signers and threshold.
+   - Fail to deploy with:
+     - Zero signers.
+     - Duplicate signers.
+     - Zero threshold.
+     - Threshold greater than number of signers.
+     - Zero address as a signer.
+2. Access Control
+   - Any address (EOA or contract) can call execute (should not revert due to access control).
+   - If an EOA or external contract calls update, it reverts with "Not authorized".
+   - If the contract itself calls update (e.g., via an internal call or through execute), it does not revert due to access control.
+   - Any address can send Ether to the contract via the receive function.
+   - Any address can call the view functions (nonce(), threshold(), signers(uint256), isSigner(address)) without restriction.
+
+
+
+
+
+   
