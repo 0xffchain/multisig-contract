@@ -137,10 +137,10 @@ Building the mechanism that checks and enforces that only valid, unique, and aut
    - Only signatures from this set are counted towards threshold. 
    
 **What constiteutes a valid action**
-    - Valid unique signature set
-    - Threshold reached
-    - No replay
-    - Correct transaction hash
+   - Valid unique signature set
+   - Threshold reached
+   - No replay
+   - Correct transaction hash
 
 
 ### What can go wrong?
