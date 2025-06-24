@@ -86,12 +86,11 @@ Pros.
 
 ## Access Control
 
-Todo
-1. Build the constructor function to update signers and threshold.
-2. Add modifier to update
-3. Write test cases for functions and state variable. 
+- [x] Build the constructor function to update signers and threshold
+- [x] Add modifier to update
+- [x] Write test cases for functions and state variable
    
-### What are we working on?
+### [TM Q1] What are we working on?
 The access control for the multisig contract, which should dictate who has access to what  entry points in the contract. 
 
  **What are the entry points**
@@ -107,24 +106,23 @@ The access control for the multisig contract, which should dictate who has acces
 **Note**
 Authorization is enforced by signature verification, not by restricting who can call the function.
 
-### What can go wrong? 
+### [TM Q2] What can go wrong? 
 
 1. Anyone can call `execute` and `update` (as they are external and have no onlyOwner or similar modifier).
 This is intentional in a multisig: the contract relies on signature checks, not msg.sender, for authorization.
 
 2. If update does not use the same mechanism and process as `execute` being that it has same requiremnts, it could open up new attack vectors.  
 
-### What are we going to do about it?
+### [TM Q3] What are we going to do about it?
 
 1. Restrict `update` so it can only be called by the contract itself. To update the owner set or threshold, users must submit a multisig-approved transaction via `execute` that calls `update` with the new parameters. This ensures that all critical changes require the same level of multisig approval, maintaining consistency, security and reducing attack surfaces. 
 
 ## Signature Verification 
-Todo
-1. Choose a scheme to use
-2. Signers data validation
-3. Signers signature validation
+- [x] Choose a scheme to use
+- [x] Signers data validation
+- [x] Signers signature validation
    
-### What are we working on?
+### [TM Q1] What are we working on?
 Building the mechanism that checks and enforces that only valid, unique, and authorized signatures from the current signer set can approve and execute transactions, using a secure and replay-resistant signature scheme. 
 
 **What is a valid signature** 
@@ -143,7 +141,7 @@ Building the mechanism that checks and enforces that only valid, unique, and aut
    - Correct transaction hash
 
 
-### What can go wrong?
+### [TM Q2] What can go wrong?
 
 1. Malformed message hash 
 2. Replay attack
@@ -156,7 +154,7 @@ Building the mechanism that checks and enforces that only valid, unique, and aut
 6. Old signer set valid in new
 
 
-### What are we going to do about it?
+### [TM Q3] What are we going to do about it?
 1. Malformed message hash: Use a well-defined, structured hash (EIP-712 or EIP-191) and test hash construction off-chain and on-chain for consistency.
 2. Replay attack: Use EIP-712 for domain separation (protects against cross-chain, contract, and function replay). Use a nonce to prevent reuse of signatures on the same contract and function.
 3. Duplicate signatures: Check for signature uniqueness in the verification logic.
@@ -179,6 +177,16 @@ Building the mechanism that checks and enforces that only valid, unique, and aut
    - If the contract itself calls update (e.g., via an internal call or through execute), it does not revert due to access control.
    - Any address can send Ether to the contract via the receive function.
    - Any address can call the view functions (nonce(), threshold(), signers(uint256), isSigner(address)) without restriction.
+3. execute Function
+   - Succeeds with exactly threshold valid, unique signatures from current signers.
+   - Succeeds with more than threshold valid, unique signatures.
+   - Fails with fewer than threshold signatures.
+   - Fails with duplicate signatures.
+   - Fails with signatures from non-signers.
+   - Fails with invalid signatures (random data).
+   - Fails if the same signer signs twice.
+   - Fails if nonce is not current (replay attack).
+
 
 
 

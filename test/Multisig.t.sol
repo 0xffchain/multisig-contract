@@ -7,7 +7,6 @@ contract MultisigTest is Test {
     Multisig sig;
     address[] owners;
 
-    event Updated();
 
     function setUp() public {
         owners.push(address(0x1));
