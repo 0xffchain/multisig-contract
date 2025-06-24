@@ -118,6 +118,51 @@ This is intentional in a multisig: the contract relies on signature checks, not 
 
 1. Restrict `update` so it can only be called by the contract itself. To update the owner set or threshold, users must submit a multisig-approved transaction via `execute` that calls `update` with the new parameters. This ensures that all critical changes require the same level of multisig approval, maintaining consistency, security and reducing attack surfaces. 
 
+## Signature Verification 
+Todo
+1. Choose a scheme to use
+2. Signers data validation
+3. Signers signature validation
+   
+### What are we working on?
+Building the mechanism that checks and enforces that only valid, unique, and authorized signatures from the current signer set can approve and execute transactions, using a secure and replay-resistant signature scheme. 
+
+**What is a valid signature** 
+   - A valid signature Correctly signs the expected transaction hash (including all relevant parameters and the current nonce)
+   - Is produced using the private key of a current signer
+   - Passes cryptographic verification (e.g., ecrecover returns a nonzero address)
+ 
+**Who are the valid signers**
+   - The current set of the approved signers.
+   - Only signatures from this set are counted towards threshold. 
+   
+**What constiteutes a valid action**
+    - Valid unique signature set
+    - Threshold reached
+    - No replay
+    - Correct transaction hash
+
+
+### What can go wrong?
+
+1. Malformed message hash 
+2. Replay attack
+   1. Cross chian
+   2. Cross Contract
+   3. Time base (noce)
+3. Duplicate signatures
+4. Bad signature accepeted 
+5. Signature maliability 
+6. Old signer set valid in new
+
+
+### What are we going to do about it?
+1. Malformed message hash: Use a well-defined, structured hash (EIP-712 or EIP-191) and test hash construction off-chain and on-chain for consistency.
+2. Replay attack: Use EIP-712 for domain separation (protects against cross-chain, contract, and function replay). Use a nonce to prevent reuse of signatures on the same contract and function.
+3. Duplicate signatures: Check for signature uniqueness in the verification logic.
+4. Bad signature accepeted: Check that `ecrecover` returns a nonzero address and that the address is in the current signer set.
+5. Signature maliability: [will be addressed later on, on further research] 
+6. Old signer set valid in new: Maintain a single set of only present signers; invalidate old signers, and ensure the nonce is independent of the signer set.
 
 ## Test cases
 1. Deployment / Constructor
