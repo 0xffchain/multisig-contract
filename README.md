@@ -145,7 +145,7 @@ Building the mechanism that checks and enforces that only valid, unique, and aut
 
 1. Malformed message hash 
 2. Replay attack
-   1. Cross chian
+   1. Cross chain
    2. Cross Contract
    3. Time base (noce)
 3. Duplicate signatures
@@ -161,6 +161,8 @@ Building the mechanism that checks and enforces that only valid, unique, and aut
 4. Bad signature accepeted: Check that `ecrecover` returns a nonzero address and that the address is in the current signer set.
 5. Signature maliability: [will be addressed later on, on further research] 
 6. Old signer set valid in new: Maintain a single set of only present signers; invalidate old signers, and ensure the nonce is independent of the signer set.
+
+---- Will continue after response from team --- 
 
 ## Test cases
 1. Deployment / Constructor
