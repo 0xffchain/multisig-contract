@@ -6,11 +6,10 @@ a multisig wallet in your preferred smart contract VM (Solidity/EVM, Rust/Cosmwa
 etc.).
 
 ## Goal 
- 1. How you approach a new challenge.
- 2. Which issues you faced along the way.
- 3. How you design a solution.
- 4. How you think about its security.
-  
+ - [x] How you approach a new challenge.
+ - [x] Which issues you faced along the way.
+ - [x] How you design a solution.
+ - [x] How you think about its security.
 
 ## Requirements 
 - [x] The multisig contract allows k-of-n signers to execute an arbitrary method on an arbitrary contract
@@ -119,6 +118,10 @@ This is intentional in a multisig: the contract relies on signature checks, not 
 - [x] Choose a scheme to use
 - [x] Signers data validation
 - [x] Signers signature validation
+  
+#### Update 1.0 
+
+[Commit: 2d2ef00](https://github.com/0xffchain/multisig-contract/commit/2d2ef00c2416a2ba75ea6a62f581fae905649230) Changed the call method to require all calls are successful. This makes sure that calls to update are always valid. 
    
 ### [TM Q1] What are we working on? 
 
@@ -168,7 +171,11 @@ Building the mechanism that checks and enforces that only valid, unique, and aut
 ## Update Signers set
    - [x] Validate new set same requirements as current set
    - [x] Delete current set
-   - [ ] Test cases
+   - [x] Test cases
+
+#### Update 1.0 
+
+[Commit: 2d2ef00](https://github.com/0xffchain/multisig-contract/commit/2d2ef00c2416a2ba75ea6a62f581fae905649230) Re-duplicated the validation of signatures in contructor and update. This was specially important for update, to make it more gas efficient, so no state is changed if transaction will fail due to invalid input. 
 
 ### [TM Q1] What are we working on? 
 
@@ -193,6 +200,41 @@ We are building the mechanism that allows the current set of signers, meeting th
    1. call 1: valid signatures
    2. call 2: calls self to update signatures
 6. Replay or Reentrancy Attack : The nonce is updated in execute, so the execute function handles this already. 
+
+
+## Summary 
+![The logical tree](media/logic.png)
+
+As concerns the goal and requirements of the problem addressed, I approached this in a very minimalistic form adhering to the KISS principle, the aim of following the chosen school of thought is to reduce attack sufaces, to make the code auditable and to create as little novel logic blocks so  that the current known attack vectors in multisiq are covered and mitigated. 
+
+From a UX perspective, I chose EIP-712 for signature verification to minimize user error and strengthen contract security. EIP-712 is an upgrade over EIP-191, addressing its flaws and providing better protection against common signature-related attacks.
+
+**Break down of my approach**
+- Systematic: I analyze each component/block in isolation and as part of the whole.
+- Iterative: I revisit and refine as I build (This is showed in the update sections as I refined the system).
+- Explicit: I document risks, mitigations, and open questions.
+- Practical: I focus on real-world attack surfaces and how to address them.
+
+Security is a data-intensive field, so I thoroughly researched known attack surfaces relevant to this design and implemented mitigations for each. This approach ensures the contract is robust and transparent. I also documented the aspect of the code that would need further investigation and research. 
+
+
+### [TM Q4] Did we do a good job?
+
+Yes, the contract meets all the stated requirements and security goals.
+
+- **All critical operations require multisig approval,** ensuring no single party can act unilaterally.
+- **Signature verification, replay protection, and input validation** are robust and follow best practices.
+- **Known attack vectors** (such as replay, duplicate signers, unauthorized updates, and reentrancy) are mitigated or explicitly documented.
+- **All state changes are atomic** with comprehensive event emission for off-chain tracking.
+- **A thorough set of test cases and edge cases** has been defined, and the contract is designed to pass them all.
+- The design is minimal, transparent, and easy to audit, aligning with the KISS principle.
+
+Limitations
+
+- Although I implemented the call and funds transfer components as part of the complete system, I was not able to research their individual security aspects in depth due to time constraints. Given more time, I would conduct a deeper analysis of their security.
+
+
+
 
 ## Test cases
 1. Deployment / Constructor
@@ -233,6 +275,16 @@ We are building the mechanism that allows the current set of signers, meeting th
    - After removing a signer, that address cannot sign future transactions.
    - After adding a new signer, that address can sign future transactions.
    - After changing the threshold, the new threshold is enforced for subsequent transactions.
+5. funds transfer & call Function  
+   - Succeeds in transferring Ether to an externally owned account (EOA).
+   - Succeeds in transferring Ether to a contract with a payable fallback or receive function.
+   - Fails (reverts) when attempting to transfer Ether to a contract that rejects or reverts on receipt.
+   - Succeeds in calling a contract function with valid calldata and signatures.
+   - Fails when calling a contract function with invalid calldata (e.g., function does not exist).
+   - Succeeds in transferring zero Ether (should not revert).
+   - Succeeds in transferring the contract’s full balance (if signatures are valid and balance is sufficient).
+   - Fails if the contract does not have enough Ether to cover the transfer value.
+   - Emits the Executed event on successful transfer or call with correct parameters.
 
 
 
