@@ -21,10 +21,11 @@ contract Multisig {
     }
 
     event Executed(address indexed to, uint256 value, bytes data, bool success, bytes32 indexed executeHash);
-    event Updated(address[] newOwners, uint256 newThreshold, uint256 indexed nonce);
+    event Updated(address[] newSigners, uint256 newThreshold, uint256 indexed nonce);
     event Received(address indexed sender, uint256 amount);
 
     constructor(address[] memory _signers, uint256 _threshold) {
+        require(_signers.length > 0 &&  _threshold <= _signers.length && _threshold > 0, "Kindly provide valid signers and threshold");
         
         newSet(_signers, _threshold);
 
@@ -61,11 +62,15 @@ contract Multisig {
         nonce++; 
         (bool res, ) = to.call{value: value}(data);
 
+        require(res, "signed call failed");
+
         emit Executed(to, value , data, res, executeHash);
         return res;
     }
 
     function update( address[] memory _signers, uint256 _threshold) onlyContract external returns (bool){
+        require(_signers.length > 0 &&  _threshold <= _signers.length && _threshold > 0, "Kindly provide valid signers set and threshold");
+
         for(uint256 x = 0; x < signers.length; x++)
         {
             isSigner[signers[x]] = false;
@@ -98,7 +103,6 @@ contract Multisig {
     }
 
     function newSet( address[] memory _signers, uint256 _threshold) internal{
-        require(_signers.length > 0 &&  _threshold <= _signers.length && _threshold > 0, "Kindly provide valid owners and threshold");
         for(uint256 i = 0; i < _signers.length; i++) {
             address signer = _signers[i];
             require(signer != address(0), "Signer cannot be zero address");

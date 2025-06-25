@@ -13,14 +13,12 @@ etc.).
   
 
 ## Requirements 
-1. The multisig contract allows k-of-n signers to execute an arbitrary method on an arbitrary contract
-2. Anyone can execute the multisig as long as they provide the required signatures
-3. The blockchain’s native transaction/signature verification mechanism should NOT be used for it,
-i.e. the verification should happen within the smart contract, and not via the chain’s native account
-authorization/multisig feature.
-4. Feel free to pick any signature scheme to use for the multisig
-5. The multisig should also allow the current signers to sign off on an update to a new signer set
-6. Define a list of tests that you would add for coverage (they don’t need to be implemented).
+- [x] The multisig contract allows k-of-n signers to execute an arbitrary method on an arbitrary contract
+- [x] Anyone can execute the multisig as long as they provide the required signatures
+- [x] The blockchain’s native transaction/signature verification mechanism should NOT be used for it, i.e. the verification should happen within the smart contract, and not via the chain’s native account authorization/multisig feature.
+- [x] Feel free to pick any signature scheme to use for the multisig
+- [x] The multisig should also allow the current signers to sign off on an update to a new signer set
+- [x] Define a list of tests that you would add for coverage (they don’t need to be implemented).
 
 
 # Solution 
@@ -56,9 +54,9 @@ Each logical block will be evaluated on both the attack sufface it introduces in
 - [x] Skeleton (State variables, functions, events & modifiers)
 - [x] Access Control
 - [ ] Call 
-- [ ] Signature Verification
+- [x] Signature Verification
 - [ ] Funds Transfer
-- [ ] Update signer
+- [x] Update signer
 
 ## Skeleton 
 [Commit: 0a86fc3](https://github.com/0xffchain/multisig-contract/commit/0a86fc3c90452af305da7d796ef243de64be364a) This is the basic. It will be included in all subsequent tests. 
@@ -111,18 +109,23 @@ Authorization is enforced by signature verification, not by restricting who can 
 1. Anyone can call `execute` and `update` (as they are external and have no onlyOwner or similar modifier).
 This is intentional in a multisig: the contract relies on signature checks, not msg.sender, for authorization.
 
-2. If update does not use the same mechanism and process as `execute` being that it has same requiremnts, it could open up new attack vectors.  
+2. If update does not use the same mechanism and process as `execute` being that it has same requiremnts, it could open up new attack surface.  
 
 ### [TM Q3] What are we going to do about it?
 
-1. Restrict `update` so it can only be called by the contract itself. To update the owner set or threshold, users must submit a multisig-approved transaction via `execute` that calls `update` with the new parameters. This ensures that all critical changes require the same level of multisig approval, maintaining consistency, security and reducing attack surfaces. 
+1. Restrict `update` so it can only be called by the contract itself. To update the signers set or threshold, users must submit a multisig-approved transaction via `execute` that calls `update` with the new parameters. This ensures that all critical changes require the same level of multisig approval, maintaining consistency, security and reducing attack surfaces. 
 
 ## Signature Verification 
 - [x] Choose a scheme to use
 - [x] Signers data validation
 - [x] Signers signature validation
    
-### [TM Q1] What are we working on?
+### [TM Q1] What are we working on? 
+
+Building the mechanism that checks and enforces that only valid, unique, and authorized signatures from the current signer set can approve and execute transactions, using a secure and replay-resistant signature scheme.
+
+### [TM Q2] What can go wrong? 
+
 Building the mechanism that checks and enforces that only valid, unique, and authorized signatures from the current signer set can approve and execute transactions, using a secure and replay-resistant signature scheme. 
 
 **What is a valid signature** 
@@ -162,7 +165,34 @@ Building the mechanism that checks and enforces that only valid, unique, and aut
 5. Signature maliability: [will be addressed later on, on further research] 
 6. Old signer set valid in new: Maintain a single set of only present signers; invalidate old signers, and ensure the nonce is independent of the signer set.
 
----- Will continue after response from team --- 
+## Update Signers set
+   - [x] Validate new set same requirements as current set
+   - [x] Delete current set
+   - [ ] Test cases
+
+### [TM Q1] What are we working on? 
+
+We are building the mechanism that allows the current set of signers, meeting the required threshold, to securely update the signer set and threshold of the multisig contract. This mechanism must ensure that only a multisig-approved transaction can change who the signers are or what the threshold is, and that the new signer set is valid (no duplicates, no zero addresses, threshold is within bounds). In essence the same validation mechanism that the first set of signers were updated with should be applied to this. 
+
+### [TM Q2] What can go wrong?
+1. Unauthorized Update:
+2. Threshold Lockout
+3. Duplicate Signers
+4. Zero Address in Signers
+5. One of two calls fails
+   1. call 1: valid signatures
+   2. call 2: calls self to update signatures
+6. Replay or Reentrancy Attack
+  
+### [TM Q3] What are we going to do about it?
+1. Unauthorized Update: Only the valid set is allowed to call this func, this is performed by limiting only the contract to call update func. So the transaction to update must be executed through the contracts execute function which only permits the valid set.
+2. Threshold Lockout : we will use the same validation mechanism as the initial signers which does not allow threshold < 1. 
+3. Duplicate Signers : we will use the same validation mechanism as the initial signers which does not allow duplicate signatures. 
+4. Zero Address in Signers : we will use the same validation mechanism as the initial signers which does not allow zero addresses.
+5. One of two calls fails : The second call to the `to` address must be successful for the entire transaction to be valid. 
+   1. call 1: valid signatures
+   2. call 2: calls self to update signatures
+6. Replay or Reentrancy Attack : The nonce is updated in execute, so the execute function handles this already. 
 
 ## Test cases
 1. Deployment / Constructor
@@ -188,6 +218,21 @@ Building the mechanism that checks and enforces that only valid, unique, and aut
    - Fails with invalid signatures (random data).
    - Fails if the same signer signs twice.
    - Fails if nonce is not current (replay attack).
+4. update Function
+   - Succeeds with a valid new signer set and threshold.
+   - Fails if called by an EOA or external contract (not via multisig).
+   - Succeeds if called by the contract itself (via execute) with valid signatures and threshold.
+   - Fails with zero signers.
+   - Fails with threshold = 0.
+   - Fails with threshold greater than the number of signers.
+   - Fails with duplicate signers in the new set.
+   - Fails with zero address in the new signer set.
+   - Fails if any validation fails, and state remains unchanged.
+   - Succeeds with the same signer set and threshold (optional, depending on logic).
+   - Emits the Updated event on successful update with correct parameters.
+   - After removing a signer, that address cannot sign future transactions.
+   - After adding a new signer, that address can sign future transactions.
+   - After changing the threshold, the new threshold is enforced for subsequent transactions.
 
 
 
