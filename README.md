@@ -1,10 +1,5 @@
 # Multisig Contract
 
-## Problem statement
-As discussed, we would like to give you a little homework. Please implement a smart contract for
-a multisig wallet in your preferred smart contract VM (Solidity/EVM, Rust/Cosmwasm, Rust/Solana
-etc.).
-
 ## Goal 
  - [x] How you approach a new challenge.
  - [x] Which issues you faced along the way.
